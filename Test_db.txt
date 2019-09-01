@@ -1,80 +1,8 @@
-SELECT test_a.call_logs.UID, COUNT(test_a.call_logs.UID) as count FROM test_a.call_logs group by test_a.call_logs.UID order by count DESC LIMIT 10;
-UID      count
-45492	    6
-33998   	6
-22719   	6
-5168	    5
-75919   	4
-99616     4
-42354   	4
-9142    	4
-28866	    4
-14797   	4
+- Total expenses
+SELECT test_a.call_logs.UID, COUNT(test_a.call_logs.UID)*(SELECT money from test_a.rates WHERE ID = 3)*CEILING(SUM((SELECT TIMESTAMPDIFF(SECOND, test_a.call_logs.timestamp_start, test_a.call_logs.timestamp_end))/60)) as "Total" FROM test_a.call_logs WHERE test_a.call_logs.Call_dir = "out" AND test_a.call_logs.To NOT IN (SELECT Phone_Number FROM test_a.numbers) GROUP BY test_a.call_logs.UID UNION SELECT test_a.call_logs.UID, COUNT(test_a.call_logs.UID)*(SELECT money FROM test_a.rates WHERE ID = 2)*CEILING(SUM((SELECT TIMESTAMPDIFF(SECOND, test_a.call_logs.timestamp_start, test_a.call_logs.timestamp_end))/60)) as "Total" FROM test_a.call_logs WHERE test_a.call_logs.Call_dir = "out" AND test_a.call_logs.To IN (SELECT Phone_Number FROM test_a.numbers) GROUP BY test_a.call_logs.UID UNION SELECT test_a.call_logs.UID, count(test_a.call_logs.UID)*(SELECT money FROM test_a.rates WHERE ID = 1)*CEILING(SUM((SELECT TIMESTAMPDIFF(SECOND, test_a.call_logs.timestamp_start, test_a.call_logs.timestamp_end))/60)) as "Total" FROM test_a.call_logs WHERE test_a.call_logs.Call_dir = "in" GROUP BY test_a.call_logs.UID;
 
+- Top 10: Most active users
+SELECT test_a.call_logs.UID, COUNT(test_a.call_logs.UID) as count FROM test_a.call_logs GROUP BY test_a.call_logs.UID ORDER BY count DESC LIMIT 10;
 
-
-SELECT test_a.call_logs.UID, count(test_a.call_logs.UID)*(select money from test_a.rates where ID = 3)*ceiling(SUM((select TIMESTAMPDIFF(SECOND, test_a.call_logs.timestamp_start, test_a.call_logs.timestamp_end))/60)) as "Total" FROM test_a.call_logs where test_a.call_logs.Call_dir = "out" and test_a.call_logs.To not in (select Phone_Number from test_a.numbers) group by test_a.call_logs.UID order by Total DESC Limit 10;
-83718	0.24
-16963	0.24
-98821	0.16
-6677	0.16
-4763	0.16
-63638	0.16
-46376	0.16
-60889	0.12
-55198	0.12
-77367	0.12
-50480	0.12
-56919	0.12
-33365	0.12
-28866	0.12
-94076	0.12
-38210	0.12
-93250	0.12
-34872	0.12
-84883	0.08
-70829	0.08
-96310	0.08
-10163	0.08
-98148	0.08
-89257	0.08
-12885	0.08
-9757	0.04
-50170	0.04
-39388	0.04
-96083	0.04
-92876	0.04
-54820	0.04
-
-SELECT test_a.call_logs.UID, DATE_FORMAT(test_a.call_logs.Timestamp_start , '%d %M %Y' ) as day, count(test_a.call_logs.UID)*(select money from test_a.rates where ID = 3)*ceiling(SUM((select TIMESTAMPDIFF(SECOND, test_a.call_logs.timestamp_start, test_a.call_logs.timestamp_end))/60)) as "Total" FROM test_a.call_logs where test_a.call_logs.Call_dir = "out" and test_a.call_logs.To not in (select Phone_Number from test_a.numbers) group by test_a.call_logs.UID, day order by Total DESC LIMIT 10;
-83718	07 March 2019	0.24
-16963	07 March 2019	0.24
-6677	07 March 2019	0.16
-98821	07 March 2019	0.16
-46376	07 March 2019	0.16
-63638	07 March 2019	0.16
-4763	07 March 2019	0.16
-55198	07 March 2019	0.12
-38210	07 March 2019	0.12
-94076	07 March 2019	0.12
-60889	07 March 2019	0.12
-56919	07 March 2019	0.12
-28866	07 March 2019	0.12
-50480	07 March 2019	0.12
-33365	07 March 2019	0.12
-34872	07 March 2019	0.12
-93250	07 March 2019	0.12
-77367	07 March 2019	0.12
-70829	07 March 2019	0.08
-89257	07 March 2019	0.08
-98148	07 March 2019	0.08
-10163	07 March 2019	0.08
-84883	07 March 2019	0.08
-12885	07 March 2019	0.08
-96310	07 March 2019	0.08
-54820	07 March 2019	0.04
-92876	07 March 2019	0.04
-50170	07 March 2019	0.04
-96083	07 March 2019	0.04
-9757	07 March 2019	0.04
-39388	07 March 2019	0.04
+- Top 10: Users with highest charges, and daily distribution for each of them
+SELECT test_a.call_logs.UID, DATE_FORMAT(test_a.call_logs.Timestamp_start , '%d %M %Y' ) as day, COUNT(test_a.call_logs.UID)*(SELECT money FROM test_a.rates where ID = 3)*CEILING(SUM((SELECT TIMESTAMPDIFF(SECOND, test_a.call_logs.timestamp_start, test_a.call_logs.timestamp_end))/60)) as "Total" FROM test_a.call_logs WHERE test_a.call_logs.Call_dir = "out" AND test_a.call_logs.To NOT IN (SELECT Phone_Number FROM test_a.numbers) GROUP BY test_a.call_logs.UID, day ORDER BY Total DESC LIMIT 10;
